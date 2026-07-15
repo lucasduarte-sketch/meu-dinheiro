@@ -24,6 +24,15 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
+
+// Overlay FORA do App para não recriar a cada render e não perder o foco
+function Overlay({children, onClose}){
+  return(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:"white",borderRadius:"24px 24px 0 0",width:"100%",maxHeight:"90vh",overflowY:"auto",padding:"24px 24px 48px"}}>{children}</div>
+    </div>
+  );
+}
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const EXPENSE_CATS = ["Alimentação","Moradia","Transporte","Saúde","Educação","Lazer","Cartão de Crédito","Financiamentos","Empréstimos","Outros"];
 const INCOME_TYPES = ["Salário","13º Salário","Hora Extra","Férias","FGTS/Rescisão","Pensão","Renda Extra","Freelance","Aluguel Recebido","Outros"];
@@ -120,11 +129,7 @@ function App() {
   const sorted=[...monthTx].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   const status=getStatus();
 
-  const Overlay=({children})=>(
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={e=>{if(e.target===e.currentTarget)setModal(null);}}>
-      <div style={{background:"white",borderRadius:"24px 24px 0 0",width:"100%",maxHeight:"90vh",overflowY:"auto",padding:"24px 24px 48px"}}>{children}</div>
-    </div>
-  );
+
 
   if(!loaded)return(<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#F0FDF4"}}><div style={{textAlign:"center"}}><div style={{fontSize:64}}>💰</div><p style={{color:"#16a34a",fontWeight:800,fontSize:18,marginTop:12}}>Carregando...</p></div></div>);
 
@@ -355,7 +360,7 @@ function App() {
       </div>
 
       {modal==="setup"&&(
-        <Overlay>
+        <Overlay onClose={()=>setModal(null)}>
           <div style={{textAlign:"center",marginBottom:24}}>
             <div style={{fontSize:52}}>💰</div>
             <div style={{fontWeight:800,fontSize:22,marginTop:10}}>Meu Controle Financeiro</div>
@@ -371,7 +376,7 @@ function App() {
       )}
 
       {modal==="add"&&(
-        <Overlay>
+        <Overlay onClose={()=>setModal(null)}>
           <div style={{display:"flex",gap:6,marginBottom:24,background:"#F3F4F6",borderRadius:14,padding:4}}>
             <button onClick={()=>setForm({...form,type:"entrada",category:INCOME_TYPES[0]})} style={{flex:1,border:"none",borderRadius:10,padding:14,fontWeight:700,fontSize:15,cursor:"pointer",fontFamily:"inherit",background:form.type==="entrada"?"#16a34a":"transparent",color:form.type==="entrada"?"white":"#6B7280"}}>⬆️ Entrada</button>
             <button onClick={()=>setForm({...form,type:"gasto",category:EXPENSE_CATS[0]})} style={{flex:1,border:"none",borderRadius:10,padding:14,fontWeight:700,fontSize:15,cursor:"pointer",fontFamily:"inherit",background:form.type==="gasto"?"#DC2626":"transparent",color:form.type==="gasto"?"white":"#6B7280"}}>⬇️ Gasto</button>
@@ -392,7 +397,7 @@ function App() {
       )}
 
       {modal==="goal"&&(
-        <Overlay>
+        <Overlay onClose={()=>setModal(null)}>
           <div style={{fontWeight:800,fontSize:20,marginBottom:20}}>🎯 {editId?"Editar":"Nova"} Meta</div>
           <label style={C.lbl}>🌟 Meu sonho / objetivo</label>
           <input style={{...C.inp,marginBottom:16}} autoFocus placeholder="Ex: Viagem para o litoral" value={form.dream||""} onChange={e=>setForm({...form,dream:e.target.value})}/>
